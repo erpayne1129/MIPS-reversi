@@ -7,15 +7,16 @@ SPACE:	.asciiz " "		#space used for blanking out board
 BOARDTORESET: .byte 'E':64	#creates an empty board of 64 characters (to be used and modified)
 	.text
 RESETBOARD:
-	# Blank out the board received as argument ($a0)
-	# except for the original starting position
+	la $a0, BOARDTORESET		#load example board (comment out in final version)
 	
+	# Blank out the board received as argument ($a0)
+	# except for the original starting position	
 	la $t0, BOARDTORESET			#hold a temporary board to hold the argument board
 	
 	# Loop through 64 times to load all indices of board
 	# Create counter for loop
 	move $t7, $zero
-MOVEBOARD:	
+MOVEBOARDRESET:	
 	# Move the full board from $a0
 	# Iterate through indixes		
 	lb $t8, ($a0)				#load the next byte from the board
@@ -27,7 +28,7 @@ MOVEBOARD:
 	addi $t7, $t7, 1			# Increment loop counter
 		
 	li $t9, 64
-	bne $t7, $t9, MOVEBOARD			#loop until counter = 64
+	bne $t7, $t9, MOVEBOARDRESET			#loop until counter = 64
 	
 	subi $t0, $t0, 64			#reset $t0 to be the first index of the board
 	
@@ -35,11 +36,11 @@ MOVEBOARD:
 	# Loop through 8 times to clear all rows of board
 	# Create counter for outer loop (y)
 	move $t1, $zero
-FORROW:
+FORROWRESET:
 	# Loop through 8 times to clear all columns in each row
 	# Create counter for inner loop (x)
 	move $t2, $zero
-FORCOLUMN:
+FORCOLUMNRESET:
 	# Calculate board index ((x*8)+y)
 	# Store (x*8) in $t3
 	move $t3, $t2
@@ -59,21 +60,17 @@ FORCOLUMN:
 	
 	# Increment inner loop counter x (in $t2)
 	addi $t2, $t2, 1
-	
 	# Loop back to FORCOLUMN if not done 8 times yet
-	move $t6, $zero
-	addi $t6, $t6, 8
-	bne $t2, $t6, FORCOLUMN
+	li $t6, 8
+	bne $t2, $t6, FORCOLUMNRESET
 	
 	# Now back in the outer loop (FORROW)
 	
 	# Increment outer loop counter y (in $t1)
 	addi $t1, $t1, 1
-	
 	# Loop back to FORROW if not done 8 times yet
-	move $t6, $zero
-	addi $t6, $t6, 8
-	bne $t1, $t6, FORROW	
+	li $t6, 8
+	bne $t1, $t6, FORROWRESET
 	
 	# If finished clearing board, set initial starting position
 	# board[3][3] = 'X'	[3][3] = 3(8)+3 = [27]
@@ -88,5 +85,6 @@ FORCOLUMN:
 	# board[4][4] = 'X'	[4][4] = 4(8)+4 = [36]
 	lb $t5, X
 	sb $t5, 36($t0) 
-		
+	
+	la $v0, ($t0)		#return the cleared board	
 	jr $ra			#return to caller address
