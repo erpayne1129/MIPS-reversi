@@ -21,7 +21,7 @@ move $s4, $ra #save
 
 #Get the Board index location with the given X and Y coordinates
 jal getIndexLocation
-move $t0, $a0
+move $t0, $v0
 move $ra, $s4
 
 #Load value of Board(x,y)
