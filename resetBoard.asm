@@ -1,16 +1,36 @@
 #Ethan Payne 
 #CS3340.0U1 Project: Reversi
 	.data
-X	.asciiz 'X'	#represents a piece belonging to player X
-O	.asciiz 'O'	#represents a piece belonging to player O
-SPACE	.asciiz ' '	#space used for blanking out board
+X:	.asciiz "X"		#represents a piece belonging to player X
+O:	.asciiz "O"		#represents a piece belonging to player O
+SPACE:	.asciiz " "		#space used for blanking out board
+BOARDTORESET: .byte 'E':64	#creates an empty board of 64 characters (to be used and modified)
 	.text
 RESETBOARD:
 	# Blank out the board received as argument ($a0)
 	# except for the original starting position
 	
-	# Store board in $t0
-	move $t0, $a0
+	la $t0, BOARDTORESET			#hold a temporary board to hold the argument board
+	
+	# Loop through 64 times to load all indices of board
+	# Create counter for loop
+	move $t7, $zero
+MOVEBOARD:	
+	# Move the full board from $a0
+	# Iterate through indixes		
+	lb $t8, ($a0)				#load the next byte from the board
+	sb $t8, ($t0)				#set i($t0) to value of i($a0) (the board)
+	
+	add $a0, $a0, 1				#add offset to board address 
+	add $t0, $t0, 1				#add offset to $t0 
+	
+	addi $t7, $t7, 1			# Increment loop counter
+		
+	li $t9, 64
+	bne $t7, $t9, MOVEBOARD			#loop until counter = 64
+	
+	subi $t0, $t0, 64			#reset $t0 to be the first index of the board
+	
 	
 	# Loop through 8 times to clear all rows of board
 	# Create counter for outer loop (y)
