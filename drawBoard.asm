@@ -91,7 +91,7 @@ FORCOLUMN:
 	# Add calculated offset (in $t4) to value of $t0 and store in $t5
 	add $t5, $t4, $t0
 	li $v0, 11 				#code 4 is to print a single character
-	la $a0, ($t5)				#print correct index of board
+	lb $a0, ($t5)				#print correct index of board
 	syscall
 	
 	# Print a space after the board value	
