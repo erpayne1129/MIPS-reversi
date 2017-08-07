@@ -1,16 +1,40 @@
 #Ethan Payne 
 #CS3340.0U1 Project: Reversi
 	.data
-HEADER:	.asciiz '  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |'	#label for each column
-HLINE:	.asciiz '  +---+---+---+---+---+---+---+---+'	#horizontal line for board
-VLINE:	.asciiz '  |   |   |   |   |   |   |   |   |'	#vertical line for board
-SPACE:  .asciiz ' '	#just a space for formatting	
-COLSEP	.asciiz '| '	#column seperator for formatting
-COLSEP2	.asciiz '|'	#column seperator for formatting
-		.text
+
+newBoard: .byte	' ':64	#creates an empty board of 64 characters (to be used and modified)
+BOARDTODRAW: .byte 'E':64	#creates an empty board of 64 characters (to be used and modified)
+HEADER:	.asciiz "  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n"	#label for each column
+HLINE:	.asciiz "  +---+---+---+---+---+---+---+---+\n"	#horizontal line for board
+VLINE:	.asciiz "  |   |   |   |   |   |   |   |   |\n"	#vertical line for board
+SPACE:  .asciiz " "	#just a space for formatting	
+COLSEP:	.asciiz "| "	#column seperator for formatting
+COLSEP2:.asciiz "|\n"	#column seperator for formatting
+	.text
 DRAWBOARD:
+	la $a0, newBoard
+	la $t0, BOARDTODRAW
 	# Print out the board received as argument ($a0)
-	move $t0, $a0	#set $t0 to value of argument (the board)
+	
+	# Loop through 64 times to load all indices of board
+	# Create counter for loop
+	move $t7, $zero
+MOVEBOARD:	
+	# Move the full board from $a0
+	# Iterate through indixes		
+	lb $t8, ($a0)				#load the next byte from the board
+	sb $t8, ($t0)				#set i($t0) to value of i($a0) (the board)
+	
+	add $a0, $a0, 1				#add offset to board address 
+	add $t0, $t0, 1				#add offset to $t0 
+	
+	addi $t7, $t7, 1			# Increment loop counter
+		
+	move $t9, $zero
+	addi $t9, $t9, 64
+	bne $t7, $t9, MOVEBOARD			#loop until counter = 64
+	
+	subi $t0, $t0, 64			#reset $t0 to be the first index of the board
 	
 	# Print header	
 	li $v0, 4 				#code 4 is to print a null-terminated string
@@ -66,7 +90,7 @@ FORCOLUMN:
 	# Noo need to multiply index by 4 because we are using a byte array
 	# Add calculated offset (in $t4) to value of $t0 and store in $t5
 	add $t5, $t4, $t0
-	li $v0, 4 				#code 4 is to print a null-terminated string
+	li $v0, 11 				#code 4 is to print a single character
 	la $a0, ($t5)				#print correct index of board
 	syscall
 	
